@@ -37,6 +37,11 @@ pipeline {
                 bat "docker push %DOCKER_IMAGE%:%TAG%"
             }
         }
+         stage('Run Container') {
+            steps {
+                sh "docker run -d -p 9090:80 $DOCKER_IMAGE:$TAG"
+            }
+        }
     }
 }
 
