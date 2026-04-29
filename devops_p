@@ -1,0 +1,147 @@
+b2:
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "varshithaj/imagev"
+        TAG = "v1"
+    }
+
+    stages {
+        stage('Clone Code') {
+            steps {
+                // Fixed: Removed the double 'git' keyword
+                git branch: 'main', url: 'https://github.com/VarshithaJ13/b2.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                // Fixed: Changed 'sh' to 'bat' and used Windows variable syntax
+                bat "docker build -t %DOCKER_IMAGE%:%TAG% ."
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    // Fixed: Changed 'sh' to 'bat'
+                    bat "echo %PASSWORD%| docker login -u %USERNAME% --password-stdin"
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                // Fixed: Changed 'sh' to 'bat'
+                bat "docker push %DOCKER_IMAGE%:%TAG%"
+            }
+        }
+    }
+}
+
+
+
+maven.yml:
+
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
+    - name: Build using Maven
+      run: mvn clean install
+      working-directory: demo
+
+
+c2:
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven3'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch:'main',url:'https://github.com/VarshithaJ13/maven.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('demo'){
+                bat 'mvn clean install'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('demo'){
+                bat 'mvn test'
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+b1 :java
+
+FROM eclipse-temurin:17
+WORKDIR /app
+COPY . .
+RUN javac app.java
+CMD ["java", "app"]
+
+
+
+b1:html
+
+FROM nginx:alpine
+RUN rm -rf /usr/share/nginx/html/*
+COPY . .
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Docker Website</title>
+</head>
+<body>
+    <h1>Hello from Docker Nginx!</h1>
+    <p>This is a static web app running inside a container.</p>
+</body>
+</html>
+
+
+
