@@ -145,3 +145,9 @@ CMD ["nginx", "-g", "daemon off;"]
 
 
 
+mvn archetype:generate -DgroupId=com.example -DartifactId=demo -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+https://my.slack.com/services/new/jenkins-ci
+
+https://myaccount.google.com/apppasswords
+
